@@ -1,12 +1,41 @@
+import { useEffect, useState } from 'react';
+import { InferGetServerSidePropsType } from 'next';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { trpc } from '../utils/trpc';
+import People from '../components/People';
 
 const Home: NextPage = () => {
-	const { data, isLoading } = trpc.useQuery([
+	const [name, setName] = useState<string>('');
+	const [age, setAge] = useState<number>(0);
+	const [race, setRace] = useState<'white' | 'black' | 'yellow'>('white');
+
+	const { data, isLoading, refetch } = trpc.useQuery([
 		'example.hello',
-		{ text: 'nigga' },
-	]);
+		{
+			person: {
+				name,
+				age,
+				race,
+			},
+		},
+	], {
+		enabled: false,
+	});
+
+	const { isLoading: isCreatePostLoading, mutate: createPerson } = trpc.useMutation(['person.createPerson'], {
+		onSuccess(data) {
+			refetch();
+			console.log('Person created successfully', data);
+		},
+		onError(error) {
+			console.error(error);
+		},
+	});
+
+	useEffect(() => {
+		refetch();
+	}, [refetch, name, age, race]);
 
 	return (
 		<>
@@ -17,34 +46,52 @@ const Home: NextPage = () => {
 			</Head>
 			<div>
 				<h1>
-          Create <span>T3</span> App
+					Racial Profiling App
 				</h1>
 
 				<div>
-					<h3>This stack uses:</h3>
-					<ul>
-						<li>
-							<a href="https://nextjs.org" target="_blank" rel="noreferrer">
-                Next.js
-							</a>
-						</li>
-						<li>
-							<a href="https://trpc.io" target="_blank" rel="noreferrer">
-                tRPC
-							</a>
-						</li>
-						<li>
-							<a
-								href="https://typescriptlang.org"
-								target="_blank"
-								rel="noreferrer"
-							>
-                TypeScript
-							</a>
-						</li>
-					</ul>
+					<label>
+						Name:
+						<input type="string" value={name} onChange={(e) => {
+							setName(e.currentTarget.value);
+						}} />
+					</label>
+
+					<br />
+
+					<label>
+						Age:
+						<input type="number" min={0} value={age} onChange={(e) => {
+							setAge(+e.currentTarget.value);
+						}} />
+					</label>
+
+					<br />
+
+					<label>
+						Race:
+						<select value={race} onChange={(e) => {
+							setRace(e.currentTarget.value as 'white' | 'black' | 'yellow');
+						}}>
+							<option value="white">White</option>
+							<option value="black">Black</option>
+							<option value="yellow">Yellow</option>
+						</select>
+					</label>
+
+					<br />
+
+					<button onClick={() => {
+						createPerson({
+							name,
+							age,
+							race,
+						});
+					}}>Save character</button>
 
 					<div>{data ? <p>{data.greeting}</p> : <p>Loading..</p>}</div>
+
+					<People />
 				</div>
 			</div>
 		</>
