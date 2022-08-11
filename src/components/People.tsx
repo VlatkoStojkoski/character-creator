@@ -14,6 +14,8 @@ const People: React.FC<PeopleProps> = ({
 		refetch: refetchGetPeople,
 	},
 }) => {
+	const [deleted, setDeleted] = useState<{ [id: string]: true }>({});
+
 	const {
 		isLoading: isDeletePersonLoading,
 		mutate: deletePerson,
@@ -34,9 +36,10 @@ const People: React.FC<PeopleProps> = ({
 	return (
 		<code>
 			{people.map((person) =>
+				!deleted[person.id] &&
 				<div key={person.id} style={{
 					marginBottom: '1em',
-					color: uniqolor(person.id, {
+					color: uniqolor(person.age, {
 						lightness: [30, 40],
 					}).color,
 				}}>
@@ -49,9 +52,13 @@ const People: React.FC<PeopleProps> = ({
 					Race: {person.race}
 					<br />
 					<a href="#" onClick={() => {
+						if (isDeletePersonLoading) return;
+
 						deletePerson({
 							id: person.id,
 						});
+
+						deleted[person.id] = true;
 					}} style={{
 						color: 'red',
 					}}>Delete</a>
