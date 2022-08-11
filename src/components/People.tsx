@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import uniqolor from 'uniqolor';
-import { trpc } from '../utils/trpc';
+import { getPeopleQueryFunction } from '../pages';
+import { inferQueryOutput, QueryReturn, trpc } from '../utils/trpc';
 
-const People: React.FC = (props) => {
-	const { data: people, isLoading, refetch } = trpc.useQuery(['person.getAll'], {
-		refetchInterval: 3000,
-	});
+interface PeopleProps {
+	query: ReturnType<typeof getPeopleQueryFunction>
+}
 
-	const { isLoading: isDeletePostLoading, mutate: deletePerson } = trpc.useMutation(['person.deletePerson'], {
+const People: React.FC<PeopleProps> = ({
+	query: {
+		data: people,
+		isLoading: isGetPeopleLoading,
+		refetch: refetchGetPeople,
+	},
+}) => {
+	const {
+		isLoading: isDeletePersonLoading,
+		mutate: deletePerson,
+	} = trpc.useMutation(['person.deletePerson'], {
 		onSuccess(data) {
-			refetch();
+			refetchGetPeople();
 			console.log('Person deleted successfully', data);
 		},
 		onError(error) {
