@@ -7,23 +7,36 @@ import type { ArrayElement, inferQueryOutput } from '../utils/trpc';
 import Characters from '../components/Characters';
 import { firstUppercase } from '../utils';
 
-export const getCharactersQueryFunction = () => trpc.useQuery(['character.getAll'], {
-	refetchInterval: 3000,
-});
+export const getCharactersMutationFunction = () => trpc.useMutation(['character.getAll']);
 
 const Home: NextPage = () => {
 	const [name, setName] = useState<string>('');
 	const [age, setAge] = useState<number>(0);
 	const [race, setRace] = useState<string>('human');
+	const [page, setPage] = useState<number>(0);
 
-	const getCharactersQuery = getCharactersQueryFunction();
+	const charactersMutation = getCharactersMutationFunction();
+
+	useEffect(() => {
+		charactersMutation.mutate({ page });
+	}, []);
+
+	const nextPage = () => {
+		setPage(page + 1);
+		charactersMutation.mutate({ page });
+	};
+
+	const prevPage = () => {
+		setPage(Math.max(0, page - 1));
+		charactersMutation.mutate({ page });
+	};
 
 	const {
 		isLoading: isCreateCharacterLoading,
 		mutate: createCharacter,
 	} = trpc.useMutation(['character.createCharacter'], {
 		onSuccess(data) {
-			getCharactersQuery.refetch();
+			charactersMutation.mutate({ page });
 			console.log('character created successfully', data);
 		},
 		onError(error) {
@@ -90,8 +103,12 @@ const Home: NextPage = () => {
 					}}>Save character</button>
 
 					<Characters
-						query={getCharactersQuery}
+						mutation={charactersMutation}
+						page={page}
 					/>
+
+					<button onClick={prevPage}>Previous page</button>
+					<button onClick={nextPage}>Next page</button>
 				</div>
 			</main>
 		</>

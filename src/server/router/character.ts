@@ -18,12 +18,19 @@ export const characterRouter = createRouter()
 			});
 		},
 	})
-	.query('getAll', {
-		async resolve({ ctx }) {
+	.mutation('getAll', {
+		input: z.object({
+			page: z.number(),
+		}),
+		async resolve({ ctx, input }) {
+			const pageSize = 5;
+
 			return await ctx.prisma.character.findMany({
 				orderBy: {
 					createdAt: 'desc',
 				},
+				skip: pageSize * input.page,
+				take: pageSize,
 			});
 		},
 	})

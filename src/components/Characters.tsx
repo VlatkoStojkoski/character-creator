@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import uniqolor from 'uniqolor';
-import { getCharactersQueryFunction } from '../pages';
+import { getCharactersMutationFunction } from '../pages';
 import { inferQueryOutput, QueryReturn, trpc } from '../utils/trpc';
 
 interface charactersProps {
-	query: ReturnType<typeof getCharactersQueryFunction>
+	mutation: ReturnType<typeof getCharactersMutationFunction>;
+	page: number;
 }
 
 const Characters: React.FC<charactersProps> = ({
-	query: {
+	mutation: {
 		data: characters,
 		isLoading: isGetCharactersLoading,
-		refetch: refetchGetCharacters,
+		mutate: mutateGetCharacters,
 	},
+	page,
 }) => {
 	const [deleted, setDeleted] = useState<{ [id: string]: true }>({});
 
@@ -21,7 +23,7 @@ const Characters: React.FC<charactersProps> = ({
 		mutate: deleteCharacter,
 	} = trpc.useMutation(['character.deleteCharacter'], {
 		onSuccess(data) {
-			refetchGetCharacters();
+			mutateGetCharacters({ page });
 			console.log('character deleted successfully', data);
 		},
 		onError(error) {
@@ -31,7 +33,7 @@ const Characters: React.FC<charactersProps> = ({
 
 	return (
 		<code style={{
-			maxHeight: '500px',
+			height: '500px',
 			overflowY: 'auto',
 		}}>
 			<h2>Characters:</h2>
@@ -59,7 +61,7 @@ const Characters: React.FC<charactersProps> = ({
 								id: character.id,
 							});
 
-							deleted[character.id] = true;
+							setDeleted({ ...deleted, [character.id]: true });
 						}} style={{
 							color: 'red',
 						}}>Delete</a>
