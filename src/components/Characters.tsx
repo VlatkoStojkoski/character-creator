@@ -30,7 +30,10 @@ const Characters: React.FC<charactersProps> = ({
 	});
 
 	return (
-		<code>
+		<code style={{
+			maxHeight: '500px',
+			overflowY: 'auto',
+		}}>
 			<h2>Characters:</h2>
 			{!characters ? <h3 style={{ fontWeight: 'normal' }}>Loading...</h3> :
 				characters.map((character) =>

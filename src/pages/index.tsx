@@ -39,7 +39,7 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<main style={{ padding: '1em' }}>
+			<main style={{ padding: '1em', width: 'fit-content', margin: '0 auto' }}>
 				<h1>
 					Fantasy character creator
 				</h1>
@@ -81,7 +81,7 @@ const Home: NextPage = () => {
 
 					<br />
 
-					<button style={{ margin: '0.5em 0' }} onClick={() => {
+					<button style={{ margin: '0.5em 0', fontSize: '1em' }} onClick={() => {
 						createCharacter({
 							name,
 							age,
