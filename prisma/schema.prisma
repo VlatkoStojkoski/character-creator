@@ -55,11 +55,11 @@ model User {
   sessions      Session[]
 }
 
-model Person {
+model character {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   age       Int
-  race      String
+  race      String // dragonborn, dwarf, elf, gnome, half-elf, halfling, half-orc, human
   createdAt DateTime? @default(now())
 }
 

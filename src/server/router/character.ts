@@ -1,16 +1,16 @@
 import { createRouter } from './context';
 import { z } from 'zod';
 
-export const personRouter = createRouter()
-	.mutation('createPerson', {
+export const characterRouter = createRouter()
+	.mutation('createCharacter', {
 		input: z
 			.object({
 				name: z.string(),
 				age: z.number(),
-				race: z.enum(['white', 'black', 'yellow']),
+				race: z.string(),
 			}),
 		async resolve({ ctx, input }) {
-			return await ctx.prisma.person.create({
+			return await ctx.prisma.character.create({
 				data: {
 					...input,
 					createdAt: new Date(),
@@ -20,19 +20,19 @@ export const personRouter = createRouter()
 	})
 	.query('getAll', {
 		async resolve({ ctx }) {
-			return await ctx.prisma.person.findMany({
+			return await ctx.prisma.character.findMany({
 				orderBy: {
 					createdAt: 'desc',
 				},
 			});
 		},
 	})
-	.mutation('deletePerson', {
+	.mutation('deleteCharacter', {
 		input: z.object({
 			id: z.string(),
 		}),
 		async resolve({ ctx, input }) {
-			return await ctx.prisma.person.delete({
+			return await ctx.prisma.character.delete({
 				where: {
 					id: input.id,
 				},

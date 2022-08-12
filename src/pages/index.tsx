@@ -2,27 +2,29 @@ import { useEffect, useState } from 'react';
 import { InferGetServerSidePropsType } from 'next';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { trpc } from '../utils/trpc';
-import People from '../components/People';
+import { characterRaces, trpc } from '../utils/trpc';
+import type { ArrayElement, inferQueryOutput } from '../utils/trpc';
+import Characters from '../components/Characters';
+import { firstUppercase } from '../utils';
 
-export const getPeopleQueryFunction = () => trpc.useQuery(['person.getAll'], {
+export const getCharactersQueryFunction = () => trpc.useQuery(['character.getAll'], {
 	refetchInterval: 3000,
 });
 
 const Home: NextPage = () => {
 	const [name, setName] = useState<string>('');
 	const [age, setAge] = useState<number>(0);
-	const [race, setRace] = useState<'white' | 'black' | 'yellow'>('white');
+	const [race, setRace] = useState<string>('human');
 
-	const getPeopleQuery = getPeopleQueryFunction();
+	const getCharactersQuery = getCharactersQueryFunction();
 
 	const {
-		isLoading: isCreatePersonLoading,
-		mutate: createPerson,
-	} = trpc.useMutation(['person.createPerson'], {
+		isLoading: isCreateCharacterLoading,
+		mutate: createCharacter,
+	} = trpc.useMutation(['character.createCharacter'], {
 		onSuccess(data) {
-			getPeopleQuery.refetch();
-			console.log('Person created successfully', data);
+			getCharactersQuery.refetch();
+			console.log('character created successfully', data);
 		},
 		onError(error) {
 			console.error(error);
@@ -32,20 +34,24 @@ const Home: NextPage = () => {
 	return (
 		<>
 			<Head>
-				<title>T3 app example</title>
-				<meta name="description" content="My first look into the T3 stack" />
+				<title>Character creator</title>
+				<meta name="description" content="Fantasy character creator made using the T3 tech stack" />
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<div>
+			<main style={{ padding: '1em' }}>
 				<h1>
-					Racial Profiling App
+					Fantasy character creator
 				</h1>
-				<span>{isCreatePersonLoading}</span>
+				<span>{isCreateCharacterLoading}</span>
 
-				<div>
+				<div style={{
+					display: 'flex',
+					flexDirection: 'column',
+					rowGap: '0.1em',
+				}}>
 					<label>
-						Name:
+						Name:{' '}
 						<input type="string" value={name} onChange={(e) => {
 							setName(e.currentTarget.value);
 						}} />
@@ -54,7 +60,7 @@ const Home: NextPage = () => {
 					<br />
 
 					<label>
-						Age:
+						Age:{' '}
 						<input type="number" min={0} value={age} onChange={(e) => {
 							setAge(+e.currentTarget.value);
 						}} />
@@ -63,31 +69,31 @@ const Home: NextPage = () => {
 					<br />
 
 					<label>
-						Race:
+						Race:{' '}
 						<select value={race} onChange={(e) => {
-							setRace(e.currentTarget.value as 'white' | 'black' | 'yellow');
+							setRace(e.currentTarget.value);
 						}}>
-							<option value="white">White</option>
-							<option value="black">Black</option>
-							<option value="yellow">Yellow</option>
+							{characterRaces.map((race, raceI) =>
+								<option key={raceI} value={race}>{firstUppercase(race)}</option>
+							)}
 						</select>
 					</label>
 
 					<br />
 
-					<button onClick={() => {
-						createPerson({
+					<button style={{ margin: '0.5em 0' }} onClick={() => {
+						createCharacter({
 							name,
 							age,
 							race,
 						});
 					}}>Save character</button>
 
-					<People
-						query={getPeopleQuery}
+					<Characters
+						query={getCharactersQuery}
 					/>
 				</div>
-			</div>
+			</main>
 		</>
 	);
 };

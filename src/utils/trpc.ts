@@ -26,3 +26,8 @@ export type inferMutationInput<
 	> = inferProcedureInput<AppRouter['_def']['mutations'][TRouteKey]>;
 
 export type QueryReturn = ReturnType<(typeof trpc.useQuery)>;
+
+export type ArrayElement<ArrayType extends readonly unknown[]> =
+	ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
+
+export const characterRaces = ['dragonborn', 'dwarf', 'elf', 'gnome', 'half-elf', 'halfling', 'half-orc', 'human'];
