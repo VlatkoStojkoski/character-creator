@@ -6,6 +6,7 @@ import { characterRaces, trpc } from '../utils/trpc';
 import type { ArrayElement, inferQueryOutput } from '../utils/trpc';
 import Characters from '../components/Characters';
 import { firstUppercase } from '../utils';
+import { flushSync } from 'react-dom';
 
 export const getCharactersMutationFunction = () => trpc.useMutation(['character.getAll']);
 
@@ -22,13 +23,15 @@ const Home: NextPage = () => {
 	}, []);
 
 	const nextPage = () => {
-		setPage(page + 1);
-		charactersMutation.mutate({ page });
+		const newPage = page + 1;
+		setPage(newPage);
+		charactersMutation.mutate({ page: newPage });
 	};
 
 	const prevPage = () => {
-		setPage(Math.max(0, page - 1));
-		charactersMutation.mutate({ page });
+		const newPage = Math.max(0, page - 1);
+		setPage(newPage);
+		charactersMutation.mutate({ page: newPage });
 	};
 
 	const {
@@ -107,8 +110,14 @@ const Home: NextPage = () => {
 						page={page}
 					/>
 
-					<button onClick={prevPage}>Previous page</button>
-					<button onClick={nextPage}>Next page</button>
+					<div style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						columnGap: '1em',
+					}}>
+						<button onClick={prevPage}>{'<-'}</button>
+						<button onClick={nextPage}>{'->'}</button>
+					</div>
 				</div>
 			</main>
 		</>
